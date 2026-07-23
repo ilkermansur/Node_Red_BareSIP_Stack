@@ -1,0 +1,42 @@
+<script type="text/javascript">
+    RED.nodes.registerType('generate-media', {
+        category: 'Gadget IVR',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: "" },
+            model: { value: "tr_TR-eren-medium" },
+            filename: { value: "output.wav" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "font-awesome/fa-volume-up",
+        label: function() {
+            return this.name || "Generate Media (TTS)";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="generate-media">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Düğüm Adı</label>
+        <input type="text" id="node-input-name" placeholder="Generate Media">
+    </div>
+    <div class="form-row">
+        <label for="node-input-model"><i class="fa fa-language"></i> Ses Modeli</label>
+        <select id="node-input-model">
+            <option value="tr_TR-eren-medium">Türkçe - Eren (Erkek)</option>
+            <option value="tr_TR-dfki-medium">Türkçe - DFKI (Kadın)</option>
+            <option value="en_US-lessac-medium">İngilizce - Lessac</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-filename"><i class="fa fa-file-audio-o"></i> Çıktı Dosya Adı</label>
+        <input type="text" id="node-input-filename" placeholder="output.wav">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="generate-media">
+    <p><b>Gadget IVR - Generate Media Düğümü</b></p>
+    <p>Gelen <code>msg.payload</code> içindeki metni Piper TTS servisine göndererek sese (.wav) dönüştürür.</p>
+    <p><b>Çıktı (Output):</b> Üretilen <code>.wav</code> dosyasının ortak sunucu yolunu (ör: <code>/tmp/media/output.wav</code>) <code>msg.payload</code> olarak döndürür.</p>
+</script>

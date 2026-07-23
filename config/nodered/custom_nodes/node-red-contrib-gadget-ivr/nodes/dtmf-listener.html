@@ -1,0 +1,36 @@
+<script type="text/javascript">
+    RED.nodes.registerType('dtmf-listener', {
+        category: 'Gadget IVR',
+        color: '#E91E63',
+        defaults: {
+            name: { value: "" },
+            host: { value: "baresip" },
+            port: { value: "5555" }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "font-awesome/fa-th",
+        label: function() {
+            return this.name || "dtmf-listener";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="dtmf-listener">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Düğüm Adı</label>
+        <input type="text" id="node-input-name" placeholder="DTMF Dinleyici">
+    </div>
+    <div class="form-row">
+        <label for="node-input-host"><i class="fa fa-server"></i> Baresip Host</label>
+        <input type="text" id="node-input-host" placeholder="baresip">
+    </div>
+    <div class="form-row">
+        <label for="node-input-port"><i class="fa fa-plug"></i> ctrl_tcp Port</label>
+        <input type="text" id="node-input-port" placeholder="5555">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="dtmf-listener">
+    <p><b>4. DTMF Listener Node:</b> Baresip ctrl_tcp soketini dinleyerek müşterinin telefon tuşlamalarını (0-9, *, #) yakalar ve <code>msg.payload</code> olarak canlı yayınlar.</p>
+</script>

@@ -1,0 +1,19 @@
+# Git ignore for bare_node
+
+# Persistent runtime data (ignore database files, audio WAVs, downloaded models)
+data/postgres/*
+!data/postgres/.gitkeep
+data/media/*
+!data/media/.gitkeep
+data/piper/*
+!data/piper/.gitkeep
+
+# Node-RED runtime data (keep flows.json)
+data/nodered/*
+!data/nodered/.gitkeep
+!data/nodered/flows.json
+!data/nodered/flows_cred.json
+
+# System / OS
+.DS_Store
+*.log

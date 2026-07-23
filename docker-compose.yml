@@ -1,0 +1,49 @@
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: bare_postgres
+    restart: always
+    env_file:
+      - ./config/postgres/db.env
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./config/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./data/postgres:/var/lib/postgresql/data
+
+  baresip:
+    build:
+      context: ./build/baresip
+      dockerfile: Dockerfile
+    container_name: bare_baresip
+    restart: always
+    ports:
+      - "5060:5060/udp"
+      - "5060:5060/tcp"
+      - "5555:5555/tcp"
+      - "10000-10020:10000-10020/udp"
+    volumes:
+      - ./config/baresip:/root/.baresip
+      - ./data/media:/tmp/media
+    depends_on:
+      - node-red
+
+  node-red:
+    build:
+      context: ./build/nodered
+      dockerfile: Dockerfile
+    container_name: bare_nodered
+    restart: always
+    ports:
+      - "1880:1880"
+      - "5005:5000"
+    volumes:
+      - ./config/nodered/settings.js:/data/settings.js:ro
+      - ./config/nodered/custom_nodes:/data/custom_nodes
+      - ./data/nodered:/data
+      - ./data/media:/tmp/media
+      - ./data/piper:/app/models
+    depends_on:
+      - postgres-db

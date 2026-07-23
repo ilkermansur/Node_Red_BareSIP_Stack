@@ -1,0 +1,25 @@
+{
+  "name": "node-red-contrib-gadget-ivr",
+  "version": "1.0.0",
+  "description": "Gadget IVR Complete 4-Node Suite for Node-RED",
+  "main": "nodes/generate-media.js",
+  "keywords": [
+    "node-red",
+    "gadget-ivr",
+    "tts",
+    "piper",
+    "baresip",
+    "sip",
+    "dtmf"
+  ],
+  "author": "Gadget IVR",
+  "license": "MIT",
+  "node-red": {
+    "nodes": {
+      "generate-media": "nodes/generate-media.js",
+      "format-media": "nodes/format-media.js",
+      "baresip-dial": "nodes/baresip-dial.js",
+      "dtmf-listener": "nodes/dtmf-listener.js"
+    }
+  }
+}

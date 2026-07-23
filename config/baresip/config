@@ -1,0 +1,33 @@
+#
+# baresip configuration
+#
+
+# Core
+poll_method		epoll
+loglevel		0
+sip_trace		yes
+
+# Input
+input_device		null
+input_port		0
+
+# Audio Output/Input
+audio_player		null,null
+audio_source		null,null
+audio_alert		null,null
+
+# Audio & Debug Modules
+module_path		/usr/lib/baresip/modules
+module			g711.so
+module			debug_cmd.so
+
+# Control Interface
+module			ctrl_tcp.so
+ctrl_tcp_listen		0.0.0.0:5555
+
+# Network / RTP Settings
+rtp_ports		10000-10020
+rtp_tos			160
+
+# SIP Settings
+sip_listen		0.0.0.0:5060

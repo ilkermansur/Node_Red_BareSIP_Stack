@@ -1,0 +1,41 @@
+<script type="text/javascript">
+    RED.nodes.registerType('baresip-dial', {
+        category: 'Gadget IVR',
+        color: '#FF9800',
+        defaults: {
+            name: { value: "" },
+            host: { value: "baresip" },
+            port: { value: "5555" },
+            targetUri: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "font-awesome/fa-phone",
+        label: function() {
+            return this.name || "baresip-dial";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="baresip-dial">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Düğüm Adı</label>
+        <input type="text" id="node-input-name" placeholder="Baresip Dial">
+    </div>
+    <div class="form-row">
+        <label for="node-input-targetUri"><i class="fa fa-phone-square"></i> Varsayılan Hedef URI</label>
+        <input type="text" id="node-input-targetUri" placeholder="sip:05321234567@sip-provider.com">
+    </div>
+    <div class="form-row">
+        <label for="node-input-host"><i class="fa fa-server"></i> Baresip Host</label>
+        <input type="text" id="node-input-host" placeholder="baresip">
+    </div>
+    <div class="form-row">
+        <label for="node-input-port"><i class="fa fa-plug"></i> ctrl_tcp Port</label>
+        <input type="text" id="node-input-port" placeholder="5555">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="baresip-dial">
+    <p><b>3. Baresip Dial Node:</b> Baresip ctrl_tcp soketine bağlanarak verilen SIP URI adresini arar.</p>
+</script>

@@ -1,0 +1,44 @@
+<script type="text/javascript">
+    RED.nodes.registerType('format-media', {
+        category: 'Gadget IVR',
+        color: '#2196F3',
+        defaults: {
+            name: { value: "" },
+            sampleRate: { value: "8000" },
+            codec: { value: "pcm_s16le" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "font-awesome/fa-sliders",
+        label: function() {
+            return this.name || "format-media";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="format-media">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Düğüm Adı</label>
+        <input type="text" id="node-input-name" placeholder="Format Media">
+    </div>
+    <div class="form-row">
+        <label for="node-input-sampleRate"><i class="fa fa-clock-o"></i> Sample Rate</label>
+        <select id="node-input-sampleRate">
+            <option value="8000">8000 Hz (G.711 / Telecom Standard)</option>
+            <option value="16000">16000 Hz (Wideband PCM)</option>
+            <option value="22050">22050 Hz (Default Piper WAV)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-codec"><i class="fa fa-code"></i> Audio Codec</label>
+        <select id="node-input-codec">
+            <option value="pcm_s16le">PCM 16-bit Mono (L16)</option>
+            <option value="pcm_mulaw">G.711 PCMU (u-Law)</option>
+            <option value="pcm_alaw">G.711 PCMA (a-Law)</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="format-media">
+    <p><b>2. Format Media Node:</b> Ses dosyasının sample rate ve codec parametrelerini telekom standartlarına dönüştürmek için konfigüre eder.</p>
+</script>
