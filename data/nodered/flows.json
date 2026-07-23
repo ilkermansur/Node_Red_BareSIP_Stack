@@ -186,12 +186,8 @@
             [
                 "debug_flow2"
             ],
-            [
-                "debug_flow2"
-            ],
-            [
-                "debug_flow2"
-            ]
+            [],
+            []
         ]
     },
     {
@@ -316,12 +312,8 @@
             [
                 "py_func_baresip_dial_flow3"
             ],
-            [
-                "py_func_baresip_dial_flow3"
-            ],
-            [
-                "py_func_baresip_dial_flow3"
-            ]
+            [],
+            []
         ]
     },
     {
