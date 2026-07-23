@@ -3,5 +3,4 @@
 #
 # Format: <sip:user:password@domain;transport=udp>;audio_codecs=PCMA,PCMU
 #
-# Placeholder account for local or direct IP/domain calling
-<sip:barenode@127.0.0.1>;answermode=manual
+<sip:gadgetpbx:cucmlabbt@192.168.91.122>;regint=0;audio_codecs=PCMA,PCMU

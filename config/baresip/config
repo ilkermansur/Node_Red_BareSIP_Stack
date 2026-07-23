@@ -16,10 +16,14 @@ audio_player		null,null
 audio_source		null,null
 audio_alert		null,null
 
-# Audio & Debug Modules
+# Audio & Core Modules
 module_path		/usr/lib/baresip/modules
 module			g711.so
+module			aufile.so
 module			debug_cmd.so
+module			menu.so
+module			account.so
+module			contact.so
 
 # Control Interface
 module			ctrl_tcp.so
