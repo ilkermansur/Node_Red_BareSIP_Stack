@@ -3,4 +3,4 @@
 #
 # Format: <sip:user:password@domain;transport=udp>;audio_codecs=PCMA,PCMU
 #
-<sip:gadgetpbx:cucmlabbt@192.168.91.122>;regint=0;audio_codecs=PCMA,PCMU
+<sip:6666@192.168.91.122>;regint=0;audio_codecs=PCMA,PCMU
