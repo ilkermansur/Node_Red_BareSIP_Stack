@@ -517,7 +517,7 @@
         "type": "python-function",
         "z": "tab_tutorial",
         "name": "3. FFmpeg Komutunu Üret (Python)",
-        "func": "file_info = msg.get('payload', {})\ninput_path = file_info.get('file_path', '/tmp/media/master_raw.wav')\noutput_path = input_path.replace('_raw.wav', '_telecom.wav')\n\nmsg['formatted_audio'] = output_path\nmsg['payload'] = f\"ffmpeg -y -i {input_path} -ar 8000 -ac 1 -c:a pcm_s16le {output_path}\"\nreturn msg",
+        "func": "file_info = msg.get('payload', {})\ninput_path = file_info.get('file_path', '/tmp/media/master_raw.wav')\noutput_path = input_path.replace('_raw.wav', '_telecom.wav')\n\nmsg['formatted_audio'] = output_path\nmsg['payload'] = f\"ffmpeg -y -i {input_path} -ar 8000 -ac 1 -c:a pcm_s16le {output_path} && rm -f {input_path}\"\nreturn msg",
         "outputs": 1,
         "x": 1090,
         "y": 140,
@@ -708,6 +708,61 @@
         "statusType": "auto",
         "x": 750,
         "y": 420,
+        "wires": []
+    },
+    {
+        "id": "inject_cleanup_tut",
+        "type": "inject",
+        "z": "tab_tutorial",
+        "name": "Geçici Medya Temizle (Auto Cleanup)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 520,
+        "wires": [
+            [
+                "py_cleanup_media_tut"
+            ]
+        ]
+    },
+    {
+        "id": "py_cleanup_media_tut",
+        "type": "python-function",
+        "z": "tab_tutorial",
+        "name": "Media Klasörü Temizle (Python)",
+        "func": "import os, glob, time\n\nmedia_dir = '/tmp/media'\ndeleted = []\nif os.path.exists(media_dir):\n    for f in glob.glob(os.path.join(media_dir, '*.wav')):\n        try:\n            # 60 saniyeden eski geçici wav dosyalarını temizler\n            if time.time() - os.path.getmtime(f) > 60:\n                os.remove(f)\n                deleted.append(os.path.basename(f))\n        except Exception:\n            pass\n\nmsg['payload'] = {\n    \"status\": \"MEDIA_CLEANUP_SUCCESS\",\n    \"deleted_files\": deleted\n}\nreturn msg",
+        "outputs": 1,
+        "x": 480,
+        "y": 520,
+        "wires": [
+            [
+                "debug_cleanup_tut"
+            ]
+        ]
+    },
+    {
+        "id": "debug_cleanup_tut",
+        "type": "debug",
+        "z": "tab_tutorial",
+        "name": "Temizlik Çıktısı",
+        "active": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 520,
         "wires": []
     }
 ]
