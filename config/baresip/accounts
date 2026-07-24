@@ -3,4 +3,4 @@
 #
 # Format: "Display Name" <sip:user:password@domain;transport=udp>;audio_codecs=PCMA,PCMU
 #
-"Gadget_IVR" <sip:Gadget_IVR@192.168.91.122>;regint=0;audio_codecs=PCMA,PCMU
+"Gadget_IVR" <sip:6666@192.168.91.122>;regint=0;audio_codecs=PCMA,PCMU
