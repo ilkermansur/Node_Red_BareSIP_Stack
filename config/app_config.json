@@ -1,0 +1,23 @@
+{
+  "project_name": "Node_Red_BareSIP_Stack",
+  "version": "1.0.0",
+  "sealed": true,
+  "sip": {
+    "default_gateway": "192.168.91.122",
+    "default_extension": "399",
+    "account_aor": "sip:6666@192.168.91.122",
+    "baresip_control_host": "baresip",
+    "baresip_control_port": 5555
+  },
+  "database": {
+    "host": "postgres-db",
+    "port": 5432,
+    "dbname": "bare_ivr",
+    "user": "ivr_user"
+  },
+  "tts": {
+    "api_url": "http://127.0.0.1:5000/api/tts",
+    "default_model": "tr_TR-eren-medium",
+    "media_dir": "/tmp/media"
+  }
+}
