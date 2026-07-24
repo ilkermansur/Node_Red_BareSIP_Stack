@@ -25,30 +25,29 @@ Aşağıdaki şemada bileşenler arasındaki tüm bağlantı türleri (HTTP REST
 
 ```mermaid
 graph TD
-    subgraph Dış Dünya & Kullanıcılar
-        User[Kullanıcı / REST Client]
-        Phone[Webex Calling / IP Telefon]
+    subgraph Users["Dış Dünya ve Kullanıcılar"]
+        User["Kullanıcı / REST Client"]
+        Phone["Webex Calling / IP Telefon"]
     end
 
-    subgraph Host Sunucu (Linux / macOS - 192.168.85.3)
-        subgraph Docker Container: bare_nodered
-            NR[Node-RED Core - Port 1880]
-            PiperDaemon[Piper TTS FastAPI - Port 5000 Internal]
-            PyFunc[Python Function Engine<br/>node-red-contrib-python-function]
+    subgraph Host["Host Sunucu (Linux / macOS - 192.168.85.3)"]
+        subgraph NodeREDContainer["Docker Container: bare_nodered"]
+            NR["Node-RED Core - Port 1880"]
+            PiperDaemon["Piper TTS FastAPI - Port 5000 Internal"]
+            PyFunc["Python Function Engine"]
         end
 
-        subgraph Docker Container: bare_postgres
-            PG[(PostgreSQL 15 DB<br/>Port 5432)]
+        subgraph PostgresContainer["Docker Container: bare_postgres"]
+            PG[("PostgreSQL 15 DB - Port 5432")]
         end
 
-        subgraph Host Network Mode Container: bare_baresip
-            Baresip[Baresip SIP UA<br/>Port 5060 SIP / 5555 TCP Control]
+        subgraph BaresipContainer["Host Network Mode Container: bare_baresip"]
+            Baresip["Baresip SIP UA - Port 5060 SIP / 5555 TCP Control"]
         end
 
-        SharedMedia[Paylaşılan Hacim Volume<br/>/tmp/media / ./data/media]
+        SharedMedia["Paylaşılan Hacim Volume - /tmp/media"]
     end
 
-    %% İletişim Protokolleri
     User -->|1. HTTP POST Request /api/v1/make-call| NR
     NR -->|2. HTTP REST API /api/tts| PiperDaemon
     PiperDaemon -->|3. WAV Dosyası Yazar| SharedMedia
