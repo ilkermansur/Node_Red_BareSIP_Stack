@@ -438,5 +438,276 @@
         "x": 750,
         "y": 320,
         "wires": []
+    },
+    {
+        "id": "tab_tutorial",
+        "type": "tab",
+        "label": "Tutorial & Master IVR Pipeline",
+        "disabled": false,
+        "info": "Tutorial & Master IVR Pipeline: Metin -> TTS -> FFmpeg -> Baresip Arama -> DTMF Dinleme -> PostgreSQL DB Kayıt tümleşik akışı."
+    },
+    {
+        "id": "comment_tutorial_hdr",
+        "type": "comment",
+        "z": "tab_tutorial",
+        "name": " 🚀 TUTORIAL & MASTER IVR ENDPOINT (HTTP POST /api/v1/make-call)",
+        "info": "Tüm adımları birleştiren master HTTP API ve IVR akışıdır.\n\nİstek Örneği (HTTP POST http://192.168.85.3:1880/api/v1/make-call):\n{\n  \"phone_number\": \"sip:399@192.168.91.122\",\n  \"text\": \"Merhaba! Bu Master IVR test aramasıdır. Lütfen bir tuşa basınız.\"\n}",
+        "x": 290,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "http_in_master_tut",
+        "type": "http in",
+        "z": "tab_tutorial",
+        "name": "POST /api/v1/make-call",
+        "url": "/api/v1/make-call",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 170,
+        "y": 140,
+        "wires": [
+            [
+                "py_prep_master_tut"
+            ]
+        ]
+    },
+    {
+        "id": "py_prep_master_tut",
+        "type": "python-function",
+        "z": "tab_tutorial",
+        "name": "1. Parametre & Dosya Adı Hazırla (Python)",
+        "func": "import time\n\nbody = msg.get('payload', {})\nif not isinstance(body, dict):\n    body = {}\n\nphone = body.get('phone_number', 'sip:399@192.168.91.122')\ntext = body.get('text', 'Merhaba! Bu Master IVR test aramasıdır. Lütfen bir tuşa basınız.')\ncall_id = f\"call_{int(time.time())}\"\nraw_file = f\"{call_id}_raw.wav\"\n\nmsg['call_id'] = call_id\nmsg['phone_number'] = phone\nmsg['tts_text'] = text\nmsg['payload'] = {\n    \"text\": text,\n    \"model\": \"tr_TR-eren-medium\",\n    \"filename\": raw_file\n}\nreturn msg",
+        "outputs": 1,
+        "x": 480,
+        "y": 140,
+        "wires": [
+            [
+                "http_piper_master_tut"
+            ]
+        ]
+    },
+    {
+        "id": "http_piper_master_tut",
+        "type": "http request",
+        "z": "tab_tutorial",
+        "name": "2. Piper TTS API (WAV Üret)",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://127.0.0.1:5000/api/tts",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 800,
+        "y": 140,
+        "wires": [
+            [
+                "py_ffmpeg_cmd_tut"
+            ]
+        ]
+    },
+    {
+        "id": "py_ffmpeg_cmd_tut",
+        "type": "python-function",
+        "z": "tab_tutorial",
+        "name": "3. FFmpeg Komutunu Üret (Python)",
+        "func": "file_info = msg.get('payload', {})\ninput_path = file_info.get('file_path', '/tmp/media/master_raw.wav')\noutput_path = input_path.replace('_raw.wav', '_telecom.wav')\n\nmsg['formatted_audio'] = output_path\nmsg['payload'] = f\"ffmpeg -y -i {input_path} -ar 8000 -ac 1 -c:a pcm_s16le {output_path}\"\nreturn msg",
+        "outputs": 1,
+        "x": 1090,
+        "y": 140,
+        "wires": [
+            [
+                "exec_ffmpeg_master_tut"
+            ]
+        ]
+    },
+    {
+        "id": "exec_ffmpeg_master_tut",
+        "type": "exec",
+        "z": "tab_tutorial",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "winHide": false,
+        "oldrc": false,
+        "name": "4. FFmpeg 8kHz Converter",
+        "x": 1370,
+        "y": 140,
+        "wires": [
+            [
+                "py_db_start_dial_tut"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "py_db_start_dial_tut",
+        "type": "python-function",
+        "z": "tab_tutorial",
+        "name": "5. DB Kaydı Başlat & Baresip Dial (Python)",
+        "func": "import json, psycopg2\n\ncall_id = msg.get('call_id', 'call_000')\nphone = msg.get('phone_number', 'sip:399@192.168.91.122')\n\n# 1. PostgreSQL DB'ye Arama Başlangıç Kaydını Ekler\ntry:\n    conn = psycopg2.connect(host='postgres-db', dbname='bare_ivr', user='ivr_user', password='ivr_password_123')\n    cur = conn.cursor()\n    cur.execute(\"INSERT INTO call_records (call_id, phone_number, direction, status, started_at) VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP)\", (call_id, phone, 'OUTBOUND', 'IN_PROGRESS'))\n    conn.commit()\n    cur.close()\n    conn.close()\nexcept Exception:\n    pass\n\n# 2. Baresip Netstring Dial Komutunu Hazırlar\ncmd_obj = {'command': 'dial', 'params': phone, 'token': call_id}\ncmd_str = json.dumps(cmd_obj)\nmsg['payload'] = f\"{len(cmd_str)}:{cmd_str},\"\nreturn msg",
+        "outputs": 1,
+        "x": 1680,
+        "y": 140,
+        "wires": [
+            [
+                "tcp_baresip_master_tut"
+            ]
+        ]
+    },
+    {
+        "id": "tcp_baresip_master_tut",
+        "type": "tcp request",
+        "z": "tab_tutorial",
+        "name": "6. Baresip ctrl_tcp (5555)",
+        "server": "127.0.0.1",
+        "port": "5555",
+        "out": "sit",
+        "splitc": "0",
+        "x": 1970,
+        "y": 140,
+        "wires": [
+            [
+                "http_resp_master_tut"
+            ]
+        ]
+    },
+    {
+        "id": "http_resp_master_tut",
+        "type": "http response",
+        "z": "tab_tutorial",
+        "name": "HTTP API Yanıtı Dön",
+        "statusCode": "200",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "x": 2210,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "comment_db_test_tut",
+        "type": "comment",
+        "z": "tab_tutorial",
+        "name": " 🗄️ ADIM 4 & 5: POSTGRESQL DB OKUMA / YAZMA & CANLI DTMF KAYDI",
+        "info": "PostgreSQL DB üzerinde arama verilerini okur, yazar ve canlı tuşlamaları zaman damgasıyla kaydeder.",
+        "x": 300,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "inject_db_read_tut",
+        "type": "inject",
+        "z": "tab_tutorial",
+        "name": "DB Son Aramaları Oku (Test)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 320,
+        "wires": [
+            [
+                "py_db_read_tut"
+            ]
+        ]
+    },
+    {
+        "id": "py_db_read_tut",
+        "type": "python-function",
+        "z": "tab_tutorial",
+        "name": "PostgreSQL DB Oku (Python)",
+        "func": "import psycopg2\n\ntry:\n    conn = psycopg2.connect(host='postgres-db', dbname='bare_ivr', user='ivr_user', password='ivr_password_123')\n    cur = conn.cursor()\n    cur.execute(\"SELECT id, call_id, phone_number, status, dtmf_digits, started_at, ended_at FROM call_records ORDER BY id DESC LIMIT 10;\")\n    rows = cur.fetchall()\n    cur.close()\n    conn.close()\n    \n    records = []\n    for r in rows:\n        records.append({\n            \"id\": r[0],\n            \"call_id\": r[1],\n            \"phone_number\": r[2],\n            \"status\": r[3],\n            \"dtmf_digits\": r[4],\n            \"started_at\": str(r[5]),\n            \"ended_at\": str(r[6])\n        })\n    msg['payload'] = records\n    return msg\nexcept Exception as e:\n    msg['payload'] = f\"DB Okuma Hatası: {str(e)}\"\n    return msg",
+        "outputs": 1,
+        "x": 460,
+        "y": 320,
+        "wires": [
+            [
+                "debug_db_records_tut"
+            ]
+        ]
+    },
+    {
+        "id": "debug_db_records_tut",
+        "type": "debug",
+        "z": "tab_tutorial",
+        "name": "DB Arama Kayıtları",
+        "active": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "tcp_in_dtmf_tut",
+        "type": "tcp in",
+        "z": "tab_tutorial",
+        "name": "Baresip Canlı Dinleyici (5555)",
+        "server": "client",
+        "host": "127.0.0.1",
+        "port": "5555",
+        "datamode": "stream",
+        "datatype": "utf8",
+        "newline": "",
+        "topic": "",
+        "base64": false,
+        "x": 190,
+        "y": 420,
+        "wires": [
+            [
+                "py_dtmf_db_update_tut"
+            ]
+        ]
+    },
+    {
+        "id": "py_dtmf_db_update_tut",
+        "type": "python-function",
+        "z": "tab_tutorial",
+        "name": "DTMF Parse & DB Kaydet (Python)",
+        "func": "import json, psycopg2\n\nraw_payload = msg.get('payload', '')\nif isinstance(raw_payload, bytes):\n    raw_payload = raw_payload.decode('utf-8', errors='ignore')\n\nraw_str = str(raw_payload).strip()\nif ':' in raw_str and raw_str.endswith(','):\n    try:\n        raw_str = raw_str.split(':', 1)[1].rstrip(',')\n    except Exception:\n        pass\n\ntry:\n    event = json.loads(raw_str)\n    event_type = str(event.get('type', ''))\n    key = str(event.get('param', '')).strip()\n    \n    if event.get('event') and event_type == 'CALL_DTMF_START' and key != '':\n        # DTMF Tuşlamasını DB'ye Kaydet\n        try:\n            conn = psycopg2.connect(host='postgres-db', dbname='bare_ivr', user='ivr_user', password='ivr_password_123')\n            cur = conn.cursor()\n            cur.execute(\"UPDATE call_records SET dtmf_digits = %s, status = %s, ended_at = CURRENT_TIMESTAMP WHERE id = (SELECT max(id) FROM call_records);\", (key, 'COMPLETED'))\n            conn.commit()\n            cur.close()\n            conn.close()\n        except Exception:\n            pass\n            \n        msg['payload'] = {\n            \"status\": \"DTMF_SAVED_TO_DB\",\n            \"key\": key,\n            \"event_type\": event_type\n        }\n        return msg\nexcept Exception:\n    pass\n\nreturn None",
+        "outputs": 1,
+        "x": 480,
+        "y": 420,
+        "wires": [
+            [
+                "debug_dtmf_db_tut"
+            ]
+        ]
+    },
+    {
+        "id": "debug_dtmf_db_tut",
+        "type": "debug",
+        "z": "tab_tutorial",
+        "name": "DTMF DB Kayıt Sonucu",
+        "active": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 420,
+        "wires": []
     }
 ]

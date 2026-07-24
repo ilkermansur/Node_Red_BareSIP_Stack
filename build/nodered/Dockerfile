@@ -19,7 +19,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Node-RED globally and required npm packages
-RUN npm install -g --unsafe-perm node-red node-red-contrib-python-function bcryptjs
+RUN npm install -g --unsafe-perm node-red node-red-contrib-python-function node-red-contrib-postgresql bcryptjs
 
 # Create node-red user and directories
 RUN useradd -m -u 1000 node-red && \
