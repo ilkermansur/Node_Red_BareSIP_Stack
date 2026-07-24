@@ -338,9 +338,24 @@
         "name": "Baresip ctrl_tcp (5555)",
         "server": "baresip",
         "port": "5555",
-        "out": "time",
+        "out": "sit",
         "splitc": "0",
         "x": 1690,
+        "y": 140,
+        "wires": [
+            [
+                "py_func_resp_str_flow3"
+            ]
+        ]
+    },
+    {
+        "id": "py_func_resp_str_flow3",
+        "type": "python-function",
+        "z": "tab_flow3",
+        "name": "Buffer -> String (Python)",
+        "func": "raw_payload = msg.get('payload', '')\nif isinstance(raw_payload, bytes):\n    msg['payload'] = raw_payload.decode('utf-8', errors='ignore')\nreturn msg",
+        "outputs": 1,
+        "x": 1910,
         "y": 140,
         "wires": [
             [
@@ -359,8 +374,69 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1930,
+        "x": 2150,
         "y": 140,
+        "wires": []
+    },
+    {
+        "id": "comment_dtmf_flow3",
+        "type": "comment",
+        "z": "tab_flow3",
+        "name": " Canlı DTMF Tuşlama Dinleyici (Python)",
+        "info": "Baresip 5555 portunu sürekli dinler ve arama esnasında kullanıcının bastığı DTMF tuşlarını (1, 2, 3...) canlı olarak süzüp debug eder.",
+        "x": 220,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "tcp_in_dtmf_flow3",
+        "type": "tcp in",
+        "z": "tab_flow3",
+        "name": "Baresip Canlı Dinleyici (5555)",
+        "server": "client",
+        "host": "127.0.0.1",
+        "port": "5555",
+        "datamode": "stream",
+        "datatype": "utf8",
+        "newline": "",
+        "topic": "",
+        "base64": false,
+        "x": 190,
+        "y": 320,
+        "wires": [
+            [
+                "py_func_dtmf_parser_flow3"
+            ]
+        ]
+    },
+    {
+        "id": "py_func_dtmf_parser_flow3",
+        "type": "python-function",
+        "z": "tab_flow3",
+        "name": "DTMF Parser (Python)",
+        "func": "import json\n\nraw_payload = msg.get('payload', '')\nif isinstance(raw_payload, bytes):\n    raw_payload = raw_payload.decode('utf-8', errors='ignore')\n\nraw_str = str(raw_payload).strip()\n\nif ':' in raw_str and raw_str.endswith(','):\n    try:\n        raw_str = raw_str.split(':', 1)[1].rstrip(',')\n    except Exception:\n        pass\n\ntry:\n    event = json.loads(raw_str)\n    event_type = str(event.get('type', ''))\n    if event.get('event') and ('DTMF' in event_type or event_type == 'CALL_DTMF_START'):\n        key = event.get('param', '')\n        msg['payload'] = {\n            \"status\": \"DTMF_RECEIVED\",\n            \"key\": key,\n            \"event_type\": event_type\n        }\n        return msg\nexcept Exception:\n    pass\n\nreturn None",
+        "outputs": 1,
+        "x": 480,
+        "y": 320,
+        "wires": [
+            [
+                "debug_dtmf_flow3"
+            ]
+        ]
+    },
+    {
+        "id": "debug_dtmf_flow3",
+        "type": "debug",
+        "z": "tab_flow3",
+        "name": "DTMF Tuşlama Çıktısı",
+        "active": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 320,
         "wires": []
     }
 ]
