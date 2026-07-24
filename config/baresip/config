@@ -13,7 +13,7 @@ input_port		0
 
 # Audio Output/Input
 audio_player		null,null
-audio_source		aufile
+audio_source		aufile,/tmp/media/flow3_telecom.wav
 audio_alert		null,null
 
 # Audio & Core Modules
