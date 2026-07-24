@@ -14,6 +14,10 @@ data/nodered/*
 !data/nodered/flows.json
 !data/nodered/flows_cred.json
 
+# Internal Development Documentation & Local Tools (Local Only)
+docs/
+convert_md_pdf.py
+
 # System / OS
 .DS_Store
 *.log
