@@ -414,7 +414,7 @@
         "type": "python-function",
         "z": "tab_flow3",
         "name": "DTMF Parser (Python)",
-        "func": "import json\n\nraw_payload = msg.get('payload', '')\nif isinstance(raw_payload, bytes):\n    raw_payload = raw_payload.decode('utf-8', errors='ignore')\n\nraw_str = str(raw_payload).strip()\n\nif ':' in raw_str and raw_str.endswith(','):\n    try:\n        raw_str = raw_str.split(':', 1)[1].rstrip(',')\n    except Exception:\n        pass\n\ntry:\n    event = json.loads(raw_str)\n    event_type = str(event.get('type', ''))\n    if event.get('event') and ('DTMF' in event_type or event_type == 'CALL_DTMF_START'):\n        key = event.get('param', '')\n        msg['payload'] = {\n            \"status\": \"DTMF_RECEIVED\",\n            \"key\": key,\n            \"event_type\": event_type\n        }\n        return msg\nexcept Exception:\n    pass\n\nreturn None",
+        "func": "import json\n\nraw_payload = msg.get('payload', '')\nif isinstance(raw_payload, bytes):\n    raw_payload = raw_payload.decode('utf-8', errors='ignore')\n\nraw_str = str(raw_payload).strip()\n\nif ':' in raw_str and raw_str.endswith(','):\n    try:\n        raw_str = raw_str.split(':', 1)[1].rstrip(',')\n    except Exception:\n        pass\n\ntry:\n    event = json.loads(raw_str)\n    event_type = str(event.get('type', ''))\n    key = str(event.get('param', '')).strip()\n    if event.get('event') and event_type == 'CALL_DTMF_START' and key != '':\n        msg['payload'] = {\n            \"status\": \"DTMF_RECEIVED\",\n            \"key\": key,\n            \"event_type\": event_type\n        }\n        return msg\nexcept Exception:\n    pass\n\nreturn None",
         "outputs": 1,
         "x": 480,
         "y": 320,
